@@ -1,0 +1,1 @@
+This python script processes network by removing surplus data (data fields) and prepares it for the K-Means algorithm

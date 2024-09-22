@@ -1,0 +1,38 @@
+import os
+import subprocess
+
+# set path for data source and output file
+pcap_folder = "Source files" 
+output_folder = "output folder" 
+
+# Create output folder if it doesn’t exit, double check folder name processing data, this consumes lots of space
+os.makedirs(output_folder, exist_ok=True)
+
+# Process each pcap files in the folder
+for file_name in os.listdir(pcap_folder):
+    if file_name.endswith(".pcap"):
+        # Construct full paths
+        pcap_file_path = os.path.join(pcap_folder, file_name)
+        output_csv_path = os.path.join(output_folder, file_name[:-5] + ".csv")  # Change extension from .pcap to .csv
+
+        # tshark command to strip pcap files and save as data stripped fole
+        tshark_command = [
+            "tshark",
+            "-r", pcap_file_path,
+            "-T", "fields",
+            "-e", "frame.time",
+            "-e", "ip.src",
+            "-e", "ip.dst",
+            "-e", "ip.proto",
+            "-e", "tcp.srcport",
+            "-e", "tcp.dstport",
+            "-e", "frame.len",
+            "-e", "tcp.flags",
+            "-E", "header=y",
+            "-E", "separator=,",
+            "-E", "quote=d"
+        ]
+        with open(output_csv_path, "w") as output_file:
+            subprocess.run(tshark_command, stdout=output_file, text=True)
+
+print("Processing complete.")
